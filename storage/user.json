@@ -1,0 +1,17 @@
+{
+    "clientcode": "S273020",
+    "password": "8552",
+    "private_key": "KDR6p07x",
+    "totp_secret": "V4YI5CILOIG4LCZOGLBGBCQNSU",
+    "local_ip": "127.0.0.1",
+    "public_ip": "127.0.0.1",
+    "mac_address": "00:00:00:00:00:00",
+    "user_type": "USER",
+    "source_id": "WEB",
+    "accept": "application/json",
+    "user_agent": "PostmanRuntime/7.49.1",
+    "accept_encoding": "gzip, deflate, br",
+    "connection": "keep-alive",
+    "jwtToken": "eyJhbGciOiJIUzUxMiJ9.eyJ1c2VybmFtZSI6IlMyNzMwMjAiLCJyb2xlcyI6MCwidXNlcnR5cGUiOiJVU0VSIiwidG9rZW4iOiJleUpoYkdjaU9pSlNVekkxTmlJc0luUjVjQ0k2SWtwWFZDSjkuZXlKMWMyVnlYM1I1Y0dVaU9pSmpiR2xsYm5RaUxDSjBiMnRsYmw5MGVYQmxJam9pZEhKaFpHVmZZV05qWlhOelgzUnZhMlZ1SWl3aVoyMWZhV1FpT2pFd01pd2ljMjkxY21ObElqb2lNeUlzSW1SbGRtbGpaVjlwWkNJNklqTXlNbUUxWWpCbExUUTVZMkl0TXpSbU5TMDROVEUwTFRNMlptRmhObVUyWm1KaE5DSXNJbXRwWkNJNkluUnlZV1JsWDJ0bGVWOTJNaUlzSW05dGJtVnRZVzVoWjJWeWFXUWlPakV3TWl3aWNISnZaSFZqZEhNaU9uc2laR1Z0WVhRaU9uc2ljM1JoZEhWeklqb2lZV04wYVhabEluMHNJbTFtSWpwN0luTjBZWFIxY3lJNkltRmpkR2wyWlNKOWZTd2lhWE56SWpvaWRISmhaR1ZmYkc5bmFXNWZjMlZ5ZG1salpTSXNJbk4xWWlJNklsTXlOek13TWpBaUxDSmxlSEFpT2pFM05qVXlOakV6TXpnc0ltNWlaaUk2TVRjMk5URTNORGMxT0N3aWFXRjBJam94TnpZMU1UYzBOelU0TENKcWRHa2lPaUppTW1NNFlURmxNeTAxTkdJd0xUUXpZalF0T0dZMFlpMWlObVU0WXpNd05qZzBNamdpTENKVWIydGxiaUk2SWlKOS5JcGhqMTYyT0U2eHJsTk5yQ3o1MjN1bkpCWFRrdkZTWk1kSFV6VUdobktIV0tZU2JvX2ZxWnFnT25uQ3B6M1ItLTRzTHJTcW43Nk1xOVM5Z3FOSWxGRmNBcTNyRXdLSTJFV01RdHhMWTdGNVFBOWhnZkFFX0RidV9VN3dQQTMtZGlQMEE2aWh6MllqMENfQWVkMXRJbDRRUXFFcVh3bThQX2x1QlRmdTV5U2MiLCJBUEktS0VZIjoiS0RSNnAwN3giLCJYLU9MRC1BUEktS0VZIjp0cnVlLCJpYXQiOjE3NjUxNzQ5MzgsImV4cCI6MTc2NTIxODYwMH0.6b7Xca2eRgVMc2PJEwqitApptluOX2UnfsSTAYXRlXRadpwpAfn-9z3OgvkfjNUqIAOK7yRXrXcx2iQUI0xX3Q",
+    "token_created_at": "2025-12-08T06:22:19.061589"
+}
