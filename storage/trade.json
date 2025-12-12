@@ -1,0 +1,76 @@
+{
+    "targetDelta": 0.2,
+    "nearestCE": {
+        "name": "NIFTY",
+        "expiry": "16DEC2025",
+        "strikePrice": "26650.000000",
+        "optionType": "CE",
+        "delta": "0.206200",
+        "gamma": "0.000400",
+        "theta": "-25.747600",
+        "vega": "7.775200",
+        "impliedVolatility": "9.820000",
+        "tradeVolume": "337982.00"
+    },
+    "nearestPE": {
+        "name": "NIFTY",
+        "expiry": "16DEC2025",
+        "strikePrice": "25500.000000",
+        "optionType": "PE",
+        "delta": "-0.194900",
+        "gamma": "0.000400",
+        "theta": "-22.069700",
+        "vega": "7.513800",
+        "impliedVolatility": "11.800000",
+        "tradeVolume": "870432.00"
+    },
+    "finalPair": {
+        "call": {
+            "name": "NIFTY",
+            "expiry": "16DEC2025",
+            "strikePrice": "26650.000000",
+            "optionType": "CE",
+            "delta": "0.206200",
+            "gamma": "0.000400",
+            "theta": "-25.747600",
+            "vega": "7.775200",
+            "impliedVolatility": "9.820000",
+            "tradeVolume": "337982.00",
+            "vwap": null,
+            "vwapStatus": "unknown",
+            "vwapFailureReason": "no_candles",
+            "usedToken": "40501",
+            "tokenSource": "searchScrip:NIFTY"
+        },
+        "put": {
+            "name": "NIFTY",
+            "expiry": "16DEC2025",
+            "strikePrice": "25500.000000",
+            "optionType": "PE",
+            "delta": "-0.194900",
+            "gamma": "0.000400",
+            "theta": "-22.069700",
+            "vega": "7.513800",
+            "impliedVolatility": "11.800000",
+            "tradeVolume": "870432.00",
+            "vwap": 60.229788,
+            "vwapStatus": "upar",
+            "usedToken": "40444",
+            "tokenSource": "searchScrip:NIFTY"
+        },
+        "callPremium": 0.0,
+        "putPremium": 0.0,
+        "premiumDiff": 0.0
+    },
+    "vwapSummary": {
+        "call": {
+            "vwap": null,
+            "status": "unknown"
+        },
+        "put": {
+            "vwap": 60.229788,
+            "status": "upar"
+        },
+        "computed_at": "2025-12-12T21:36:29.727266"
+    }
+}
