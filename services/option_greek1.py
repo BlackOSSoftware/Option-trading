@@ -136,7 +136,6 @@ def find_nearest_delta(chain: list, spot: float, days: int, target_delta=0.20):
     
     return ce_target, pe_target
 
-
 # ==============================
 # TOKEN & LTP HANDLING
 # ==============================
