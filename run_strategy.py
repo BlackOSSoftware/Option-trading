@@ -35,9 +35,9 @@ def run_step(step_name: str, script_path: str):
         )
         if result.stdout:
             print(result.stdout)
-        print(f"✅ [{step_name}] Completed")
+        print(f"[{step_name}] Completed")
     except subprocess.CalledProcessError as e:
-        print(f"❌ [{step_name}] Failed")
+        print(f"[{step_name}] Failed")
         print(e.stderr)
         sys.exit(1)
 
@@ -54,7 +54,7 @@ def main():
         "services/auth.py"
     )
 
-    # 2️⃣ Compute VWAP (context / regime)
+    # 2️⃣ Compute VWAP 
     run_step(
         "VWAP COMPUTATION",
         "services/compute_vwap.py"
@@ -66,7 +66,7 @@ def main():
         "services/option_greek1.py"
     )
 
-    # 4️⃣ Trade execution (paper / live)
+    # 4️⃣ Trade execution 
     run_step(
         "TRADE EXECUTION",
         "services/trade.py"
@@ -74,8 +74,8 @@ def main():
     )
 
     print("==========================================")
-    print("✅ STRATEGY EXECUTION COMPLETED SUCCESSFULLY")
-    print("📁 Output saved in storage/trade.json")
+    print("STRATEGY EXECUTION COMPLETED SUCCESSFULLY")
+    print("Output saved in storage/trade.json")
     print("==========================================")
 
 if __name__ == "__main__":
