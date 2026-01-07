@@ -3,14 +3,12 @@ import requests
 from datetime import datetime
 from typing import TypedDict, Dict
 
-
 class Instrument(TypedDict):
     name: str
     expiry: str
     strikePrice: str
     optionType: str
     symbolToken: str
-
 
 class FinalPair(TypedDict):
     call: Instrument
@@ -19,7 +17,6 @@ class FinalPair(TypedDict):
     putPremium: float
     premiumDiff: float
     distance: float
-
 
 # ---------------------------
 # Load user.json  (Correct Path)
