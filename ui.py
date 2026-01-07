@@ -1,7 +1,13 @@
 # A Python-powered live trading dashboard that runs in the browser
-''' This file builds a live web dashboard using Streamlit to visualize an options trading strategy (Short Strangle with hedges).
+""" 
+This file builds a live web dashboard using Streamlit to visualise an options trading strategy (Short Strangle with hedges).
 It reads trade data from a JSON file, calculates key metrics (credit, delta, risk, VWAP bias), and displays them in a real-time updating UI (auto-refresh every 5 seconds).
-Streamlit is a Python framework that converts Python code into an interactive web application (HTML/CSS/JS) automatically, without writing frontend code manually.'''
+Streamlit is a Python framework that converts Python code into an interactive web application (HTML/CSS/JS) automatically, without writing frontend code manually.
+
+Usage:
+    pip install streamlit pandas streamlit-autorefresh
+    streamlit run streamlit_app.py
+"""
 
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
