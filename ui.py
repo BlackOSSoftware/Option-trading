@@ -162,7 +162,6 @@ with hc:
 with hp:
     render_hedge_table(hedges.get("put_5rs", []), "Put")
 
-
 # ---------- SYSTEM STATUS ----------
 st.markdown("### ⚙️ System Status")
 
