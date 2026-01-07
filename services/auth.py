@@ -1,7 +1,7 @@
 import json
 import requests
 import pyotp
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 # Load user config from user.json
@@ -16,7 +16,7 @@ def update_user_with_token(jwt_token: str) -> None:
         data = json.load(file)
 
     data["jwtToken"] = jwt_token
-    data["token_created_at"] = datetime.utcnow().isoformat()
+    data["token_created_at"] = datetime.now(timezone.utc).isoformat()
 
     with open("storage/user.json", "w") as file:
         json.dump(data, file, indent=4)
