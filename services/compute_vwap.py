@@ -68,9 +68,34 @@ def save_json(path: str, data: Any):
 
 # ---- Normalizers & token matching ----
 def normalize_expiry(expiry: Optional[str]) -> Optional[str]:
+    """
+    Normalize expiry to YYYY-MM-DD
+    Accepts: 30DEC2025, 30-Dec-2025, 2025-12-30
+    """
     if not expiry:
         return None
-    return str(expiry).strip().upper().replace(" ", "")
+
+    e = str(expiry).strip().upper()
+
+    # Already ISO format
+    try:
+        return datetime.strptime(e, "%Y-%m-%d").strftime("%Y-%m-%d")
+    except:
+        pass
+
+    # 30DEC2025
+    try:
+        return datetime.strptime(e, "%d%b%Y").strftime("%Y-%m-%d")
+    except:
+        pass
+
+    # 30-DEC-2025
+    try:
+        return datetime.strptime(e, "%d-%b-%Y").strftime("%Y-%m-%d")
+    except:
+        pass
+
+    return None
 
 def build_symbol_variants(name: str, expiry: str, strike: str, opt_type: str) -> List[str]:
     variants: List[str] = []
@@ -96,41 +121,54 @@ def build_symbol_variants(name: str, expiry: str, strike: str, opt_type: str) ->
             out.append(v)
     return out
 
+def normalize_strike(val) -> Optional[float]:
+    try:
+        return round(float(val), 2)
+    except:
+        return None
+
 def find_token_from_entries(entries: List[dict], name: str, expiry: str, strike: str, opt_type: str) -> Optional[str]:
     if not entries:
         return None
+
     variants = build_symbol_variants(name, expiry, strike, opt_type)
     target_strike = None
     try:
         target_strike = float(strike)
     except Exception:
         target_strike = strike
+
     name_up = str(name).strip().upper()
+
     for ent in entries:
         try:
             trad = (ent.get("tradingsymbol") or ent.get("symbol") or ent.get("scrip") or ent.get("name") or "").upper()
             token = ent.get("symboltoken") or ent.get("token") or ent.get("instrumentToken") or ent.get("tokenId") or ent.get("token_id")
             if not trad or not token:
                 continue
+
+            # First try symbol variants match
             for v in variants:
                 if v.upper() in trad:
                     return str(token)
-            # fallback check: strike + option type + expiry
-            ent_str = ent.get("strike") or ent.get("strikePrice") or ent.get("strike_price")
+
+            # fallback: strike + option type + expiry
+            ent_str = normalize_strike(ent.get("strike") or ent.get("strikePrice") or ent.get("strike_price"))
+            target_strike_n = normalize_strike(target_strike)
             ent_opt = (ent.get("optionType") or ent.get("instrumenttype") or ent.get("type") or "").upper()
-            ent_exp = ent.get("expiry") or ent.get("expiryDate")
-            if ent_str is not None and target_strike is not None:
-                try:
-                    if float(ent_str) == float(target_strike):
-                        if opt_type and opt_type.upper() in ent_opt:
-                            return str(token)
-                        # if option type unknown in entry, still accept strike-match
+
+            if ent_str is not None and target_strike_n is not None:
+                if ent_str == target_strike_n:
+                    if opt_type and opt_type.upper() in ent_opt:
                         return str(token)
-                except Exception:
-                    pass
+                    # still return token if strike matches even if option type doesn't
+                    return str(token)
+
         except Exception:
             continue
+
     return None
+
 
 # ---- Token discovery pipeline ----
 def pick_auth_token(user_json: Optional[dict]) -> Optional[str]:
@@ -276,6 +314,13 @@ def fetch_candles_for_token(symboltoken: str, user_json: Optional[dict], interva
             time.sleep(BACKOFF_FACTOR * (attempt + 1))
     return None
 
+def load_candles_from_file(token: str) -> Optional[List[List]]:
+    path = os.path.join(CANDLES_DIR, f"{token}.json")
+    j = load_json(path)
+    if j and "response" in j and "data" in j["response"]:
+        return j["response"]["data"]
+    return None
+
 # ---- VWAP compute ----
 def compute_vwap_from_candles(candles: List[List]) -> Optional[float]:
     if not candles:
@@ -307,6 +352,22 @@ def last_close_from_candles(candles: List[List]) -> Optional[float]:
             continue
     return None
 
+def build_tradingsymbol(name: str, expiry: str, strike: str, opt_type: str) -> str:
+    """
+    Build Angel One tradingsymbol
+    Example: NIFTY13JAN26CE26650
+    """
+    if not (name and expiry and strike and opt_type):
+        return ""
+
+    exp = str(expiry).replace("-", "").upper()
+    try:
+        strike_i = str(int(float(strike)))
+    except Exception:
+        strike_i = str(strike)
+
+    return f"{name}{exp}{opt_type.upper()}{strike_i}"
+
 # ---- Per-instrument processing ----
 def process_instrument(side_obj: dict, user_json: Optional[dict]) -> Dict[str, Any]:
     """
@@ -324,14 +385,31 @@ def process_instrument(side_obj: dict, user_json: Optional[dict]) -> Dict[str, A
     opt_type = (side_obj.get("optionType") or "").upper()
 
     # 1) Find token
-    token, src = try_find_token(name, expiry, strike, opt_type, user_json)
-    if not token:
-        result["vwapFailureReason"] = "token_not_found"
-        return result
+    token = side_obj.get("symbolToken")
+    if token:
+        src = "trade.json"
+    else:
+        token, src = try_find_token(name, expiry, strike, opt_type, user_json)
     result["usedToken"] = token
     result["tokenSource"] = src
 
-    # 2) Try multiple candle windows: today market hours, previous trading day, hourly 30d
+    if not token:
+        result["vwapFailureReason"] = "token_not_found"
+        
+        return result
+    
+    # Populate tradingsymbol if missing
+    if token and not side_obj.get("tradingsymbol"):
+        side_obj["tradingsymbol"] = build_tradingsymbol(
+            name=name,
+            expiry=expiry,
+            strike=strike,
+            opt_type=opt_type
+        )
+
+
+
+    # 2) Try local candles first, then API
     now = datetime.now()
     # today market hours
     from_dt = now.replace(hour=9, minute=15, second=0, microsecond=0)
@@ -341,19 +419,22 @@ def process_instrument(side_obj: dict, user_json: Optional[dict]) -> Dict[str, A
         from_dt = now - timedelta(minutes=60)
         to_dt = now
 
-    # Attempt 1: minute candles for today
-    candles = fetch_candles_for_token(token, user_json, "ONE_MINUTE", from_dt, to_dt)
-    if candles is None:
-        # Attempt 2: previous trading day full range
-        prev = now - timedelta(days=1)
-        prev_from = prev.replace(hour=9, minute=15, second=0, microsecond=0)
-        prev_to = prev.replace(hour=15, minute=30, second=0, microsecond=0)
-        candles = fetch_candles_for_token(token, user_json, "ONE_MINUTE", prev_from, prev_to)
-    if candles is None:
-        # Attempt 3: hourly over last 30 days
-        to_dt2 = now
-        from_dt2 = now - timedelta(days=30)
-        candles = fetch_candles_for_token(token, user_json, "ONE_HOUR", from_dt2, to_dt2)
+    # LOAD LOCAL FIRST
+    candles = load_candles_from_file(token)
+    if candles is None or len(candles) == 0:
+        # fallback to API
+        candles = fetch_candles_for_token(token, user_json, "ONE_MINUTE", from_dt, to_dt)
+        if candles is None:
+            # Attempt previous trading day full range
+            prev = now - timedelta(days=1)
+            prev_from = prev.replace(hour=9, minute=15, second=0, microsecond=0)
+            prev_to = prev.replace(hour=15, minute=30, second=0, microsecond=0)
+            candles = fetch_candles_for_token(token, user_json, "ONE_MINUTE", prev_from, prev_to)
+        if candles is None:
+            # Attempt 3: hourly over last 30 days
+            to_dt2 = now
+            from_dt2 = now - timedelta(days=30)
+            candles = fetch_candles_for_token(token, user_json, "ONE_HOUR", from_dt2, to_dt2)
 
     if candles is None:
         result["vwapFailureReason"] = "api_error_or_nonjson"
@@ -370,7 +451,9 @@ def process_instrument(side_obj: dict, user_json: Optional[dict]) -> Dict[str, A
         return result
 
     result["vwap"] = round(vwap, 6)
-    result["vwapStatus"] = "upar" if vwap > last_close else "niche"
+    result["vwapStatus"] = "Above" if vwap > last_close else "Below"
+    result["vwapFailureReason"] = None
+
     return result
 
 # ---- Main ----
@@ -383,44 +466,36 @@ def main():
     user_json = load_json(USER_JSON_PATH) or {}
     # Attempt token discovery uses files and API as needed
 
-    final = trade.get("finalPair", {})
-    call_obj = final.get("call", {})
-    put_obj = final.get("put", {})
+    final = trade.setdefault("finalPair", {})
+    call_obj = final.setdefault("call", {})
+    put_obj = final.setdefault("put", {})
 
     print("[main] processing CALL...")
     call_res = process_instrument(call_obj, user_json)
     print("[main] processing PUT...")
     put_res = process_instrument(put_obj, user_json)
 
-    # write back to trade structure
-    trade.setdefault("finalPair", {})
-    trade["finalPair"].setdefault("call", call_obj)
-    trade["finalPair"].setdefault("put", put_obj)
+    for key in ("vwap", "vwapStatus", "vwapFailureReason", "usedToken", "tokenSource"):
+        if key in call_res:
+            call_obj[key] = call_res[key]
 
-    trade["finalPair"]["call"]["vwap"] = call_res.get("vwap")
-    trade["finalPair"]["call"]["vwapStatus"] = call_res.get("vwapStatus")
-    if call_res.get("vwapFailureReason"):
-        trade["finalPair"]["call"]["vwapFailureReason"] = call_res.get("vwapFailureReason")
-    if call_res.get("usedToken"):
-        trade["finalPair"]["call"]["usedToken"] = call_res.get("usedToken")
-        trade["finalPair"]["call"]["tokenSource"] = call_res.get("tokenSource")
-
-    trade["finalPair"]["put"]["vwap"] = put_res.get("vwap")
-    trade["finalPair"]["put"]["vwapStatus"] = put_res.get("vwapStatus")
-    if put_res.get("vwapFailureReason"):
-        trade["finalPair"]["put"]["vwapFailureReason"] = put_res.get("vwapFailureReason")
-    if put_res.get("usedToken"):
-        trade["finalPair"]["put"]["usedToken"] = put_res.get("usedToken")
-        trade["finalPair"]["put"]["tokenSource"] = put_res.get("tokenSource")
-
+        if key in put_res:
+            put_obj[key] = put_res[key]
+    
     trade["vwapSummary"] = {
-        "call": {"vwap": trade["finalPair"]["call"].get("vwap"), "status": trade["finalPair"]["call"].get("vwapStatus")},
-        "put":  {"vwap": trade["finalPair"]["put"].get("vwap"),  "status": trade["finalPair"]["put"].get("vwapStatus")},
-        "computed_at": datetime.now().isoformat()
+        "call": {
+            "vwap": call_obj.get("vwap"),
+            "status": call_obj.get("vwapStatus"),
+        },
+        "put": {
+            "vwap": put_obj.get("vwap"),
+            "status": put_obj.get("vwapStatus"),
+        },
+        "computed_at": datetime.now().isoformat(),
     }
 
     save_json(TRADE_JSON_PATH, trade)
-    print("[main] VWAP computation done. Results saved to storage/trade.json.")
+    print(f"[main] VWAP computation done. Results saved to storage/trade.json")
 
 if __name__ == "__main__":
     main()
