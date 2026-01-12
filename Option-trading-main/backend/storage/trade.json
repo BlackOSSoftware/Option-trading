@@ -1,0 +1,162 @@
+{
+    "targetDelta": 0.2,
+    "nearestCE": {
+        "name": "NIFTY",
+        "expiry": "13JAN2026",
+        "strikePrice": "26000.000000",
+        "optionType": "CE",
+        "delta": "0.186100",
+        "gamma": "0.000800",
+        "theta": "-43.731500",
+        "vega": "3.816300",
+        "impliedVolatility": "17.640000",
+        "tradeVolume": "2673155.00"
+    },
+    "nearestPE": {
+        "name": "NIFTY",
+        "expiry": "13JAN2026",
+        "strikePrice": "25400.000000",
+        "optionType": "PE",
+        "delta": "-0.214700",
+        "gamma": "0.000800",
+        "theta": "-44.722700",
+        "vega": "4.159100",
+        "impliedVolatility": "16.580000",
+        "tradeVolume": "4475162.00"
+    },
+    "finalPair": {
+        "call": {
+            "name": "NIFTY",
+            "expiry": "13JAN2026",
+            "strikePrice": "26000.000000",
+            "optionType": "CE",
+            "delta": "0.186100",
+            "gamma": "0.000800",
+            "theta": "-43.731500",
+            "vega": "3.816300",
+            "impliedVolatility": "17.640000",
+            "tradeVolume": "2673155.00",
+            "vwapStatus": "Below",
+            "vwapFailureReason": null,
+            "tokenSource": "trade.json",
+            "symbolToken": "46175",
+            "tradingsymbol": "",
+            "ltp": 12.3,
+            "soldAt": "2026-01-12T12:31:10.892058",
+            "vwap": 11.156317,
+            "usedToken": "46171"
+        },
+        "put": {
+            "name": "NIFTY",
+            "expiry": "13JAN2026",
+            "strikePrice": "25400.000000",
+            "optionType": "PE",
+            "delta": "-0.214700",
+            "gamma": "0.000800",
+            "theta": "-44.722700",
+            "vega": "4.159100",
+            "impliedVolatility": "16.580000",
+            "tradeVolume": "4475162.00",
+            "vwapStatus": "Above",
+            "vwapFailureReason": null,
+            "tokenSource": "trade.json",
+            "symbolToken": "46144",
+            "tradingsymbol": "",
+            "ltp": 13.6,
+            "soldAt": "2026-01-12T12:31:10.892107",
+            "vwap": 11.099646,
+            "usedToken": "46138"
+        },
+        "callPremium": 12.15,
+        "putPremium": 13.6,
+        "premiumDiff": 1.4499999999999993,
+        "distance": 10.3
+    },
+    "vwapSummary": {
+        "call": {
+            "vwap": 11.156317,
+            "status": "Below"
+        },
+        "put": {
+            "vwap": 11.099646,
+            "status": "Above"
+        },
+        "computed_at": "2026-01-12T12:31:09.332673"
+    },
+    "spot": 26036,
+    "atm": 26050,
+    "selectedStrikes": {
+        "CE": 26000.0,
+        "PE": 25400.0
+    },
+    "positions": {
+        "sold": {
+            "call": {
+                "strike": 26000.0,
+                "type": "CE",
+                "ltp": 12.3,
+                "soldAt": "2026-01-12T12:31:11.459816"
+            },
+            "put": {
+                "strike": 25400.0,
+                "type": "PE",
+                "ltp": 13.6,
+                "soldAt": "2026-01-12T12:31:11.459834"
+            }
+        }
+    },
+    "hedgeOptions": {
+        "call_5rs": [
+            {
+                "strikePrice": "25950.000000",
+                "ltp": 16.7,
+                "delta": 0.2258,
+                "optionType": "CE",
+                "tradingsymbol": "",
+                "symbolToken": "46173"
+            },
+            {
+                "strikePrice": "26050.000000",
+                "ltp": 8.9,
+                "delta": 0.1515,
+                "optionType": "CE",
+                "tradingsymbol": "",
+                "symbolToken": "46179"
+            }
+        ],
+        "put_5rs": [
+            {
+                "strikePrice": "25450.000000",
+                "ltp": 18.85,
+                "delta": -0.2578,
+                "optionType": "PE",
+                "tradingsymbol": "",
+                "symbolToken": "46146"
+            },
+            {
+                "strikePrice": "25350.000000",
+                "ltp": 10.5,
+                "delta": -0.1753,
+                "optionType": "PE",
+                "tradingsymbol": "",
+                "symbolToken": "46142"
+            }
+        ],
+        "hedgeCost": 54.95
+    },
+    "strategyStatus": {
+        "timestamp": "2026-01-12T12:31:11.985491",
+        "sold_call": 12.3,
+        "sold_put": 13.6,
+        "live_call": 12.15,
+        "live_put": 13.6,
+        "total_sold": 25.9,
+        "threshold_40_sold": 10.36,
+        "live_total": 25.75,
+        "live_loss": -15.39,
+        "hedge_needed": false,
+        "add_new_option": false,
+        "exit_strategy": false,
+        "total_strategy_loss": 30.78
+    }
+}
