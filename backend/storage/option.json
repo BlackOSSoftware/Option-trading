@@ -1,0 +1,6 @@
+{
+  "name": "NIFTY",
+  "expiryMode": "AUTO",
+  "manualExpiry": "13JAN2026",
+  "targetDelta": 0.20
+}

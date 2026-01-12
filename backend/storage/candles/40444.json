@@ -1,0 +1,16 @@
+{
+    "fetched_at": "2025-12-20T23:00:52.405876",
+    "request": {
+        "exchange": "NFO",
+        "symboltoken": "40444",
+        "interval": "ONE_MINUTE",
+        "fromdate": "2025-12-20 09:15",
+        "todate": "2025-12-20 15:30"
+    },
+    "response": {
+        "status": true,
+        "message": "SUCCESS",
+        "errorcode": "",
+        "data": []
+    }
+}
