@@ -3,8 +3,8 @@ import os, json
 from datetime import datetime
 import requests
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STORAGE = os.path.join(PROJECT_ROOT, "storage")
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))  
+STORAGE = os.path.join(BASE_DIR, "storage")            
 TRADE = os.path.join(STORAGE, "trade.json")
 USER = os.path.join(STORAGE, "user.json")
 SCRIP_MASTER_URL = "https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json"
