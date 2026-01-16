@@ -5,21 +5,37 @@ import json
 from datetime import datetime
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+# backend directory
+BACKEND_DIR = os.path.dirname(__file__)
+
+# project root directory
+BASE_DIR = os.path.dirname(BACKEND_DIR)
 
 app = FastAPI(title="Automated Option Strategy")
 
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
-app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+# templates are in project root
+templates = Jinja2Templates(
+    directory=os.path.join(BASE_DIR, "templates")
+)
 
-TRADE_FILE = os.path.join(BASE_DIR, "storage", "trade.json")
+# static is in project root
+app.mount(
+    "/static",
+    StaticFiles(directory=os.path.join(BASE_DIR, "static")),
+    name="static"
+)
+
+# trade.json is in backend/storage
+TRADE_FILE = os.path.join(BACKEND_DIR, "storage", "trade.json")
 
 
 def load_trade():
     try:
         with open(TRADE_FILE) as f:
-            return json.load(f)
-    except:
+            data = json.load(f)
+            return data
+    except Exception as e:
+        print("Failed to load trade.json:", e)
         return {}
 
 
