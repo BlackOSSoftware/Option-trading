@@ -1,8 +1,11 @@
 import json
 import requests
+import os
 from datetime import datetime
 from typing import TypedDict, Dict
 
+BASE_DIR = os.path.dirname(os.path.dirname(__file__)) 
+STORAGE_DIR = os.path.join(BASE_DIR, "storage") 
 
 class Instrument(TypedDict):
     name: str
@@ -25,7 +28,7 @@ class FinalPair(TypedDict):
 # Load user.json  (Correct Path)
 # ---------------------------
 def load_user_config() -> dict:
-    with open("storage/user.json", "r") as f:
+    with open(os.path.join(STORAGE_DIR, "user.json"), "r") as f:
         return json.load(f)
 
 
@@ -33,7 +36,7 @@ def load_user_config() -> dict:
 # Load trade.json (Correct Path)
 # ---------------------------
 def load_trade_json() -> dict:
-    with open("storage/trade.json", "r") as f:
+    with open(os.path.join(STORAGE_DIR, "trade.json"), "r") as f:
         return json.load(f)
 
 
@@ -41,7 +44,7 @@ def load_trade_json() -> dict:
 # Save trade.json (Correct Path)
 # ---------------------------
 def save_trade_json(data: dict) -> None:
-    with open("storage/trade.json", "w") as f:
+    with open(os.path.join(STORAGE_DIR, "trade.json"), "w") as f:
         json.dump(data, f, indent=4)
 
 
@@ -113,6 +116,7 @@ def update_premium_levels() -> None:
     # SOLD PRICES (entry time LTP)
     sold_call_price = final_pair["call"].get("ltp", 0.0) or call_price
     sold_put_price = final_pair["put"].get("ltp", 0.0) or put_price
+
     total_sold_premium = sold_call_price + sold_put_price
     threshold_40_sold = total_sold_premium * 0.40
 
@@ -122,6 +126,7 @@ def update_premium_levels() -> None:
     # STRATEGY SIGNALS 
     hedge_needed = live_loss > 0
     add_new_option = live_loss > (threshold_40_sold * 0.5)
+
     total_strategy_loss = abs(live_loss) * 2  # 2 lots
     exit_strategy = total_strategy_loss >= 1500
 
@@ -148,8 +153,37 @@ def update_premium_levels() -> None:
         'total_strategy_loss': round(total_strategy_loss, 2)
     }
 
-    # Save back
-    trade_data["finalPair"] = final_pair
+    # AUTO HEDGE LOGIC
+    call = final_pair["call"]
+    put = final_pair["put"]
+    
+    # CHECK VWAP LOWER + HEDGE NEEDED
+    if (call.get("vwapStatus") == "Below" or put.get("vwapStatus") == "Below") and hedge_needed:
+        
+        # GET NEAREST 5RS HEDGES (already in trade.json)
+        hedge_call = trade_data["hedgeOptions"]["call_5rs"][0]  # 26350CE
+        hedge_put = trade_data["hedgeOptions"]["put_5rs"][0]    # 25300PE
+        
+        print(f"🚀 AUTO HEDGE TRIGGERED!")
+        print(f"📈 BUY {hedge_call['tradingsymbol']} @ ₹{hedge_call['ltp']:.2f}")
+        print(f"📉 BUY {hedge_put['tradingsymbol']} @ ₹{hedge_put['ltp']:.2f}")
+        print(f"💰 Total Hedge Cost: ₹{trade_data['hedgeOptions']['hedgeCost']:.2f}")
+        
+        # UPDATE POSITION WITH HEDGE
+        trade_data["hedges"] = trade_data["hedges"] or []
+        trade_data["hedges"].append({
+            "timestamp": datetime.now().isoformat(),
+            "call": hedge_call,
+            "put": hedge_put,
+            "reason": "VWAP_Below",
+            "total_cost": trade_data["hedgeOptions"]["hedgeCost"]
+        })
+        
+        # MARK HEDGE ACTIVE
+        trade_data["strategyStatus"]["hedge_active"] = True
+        trade_data["strategyStatus"]["hedge_cost"] = trade_data["hedgeOptions"]["hedgeCost"]
+    
+    # SAVE
     save_trade_json(trade_data)
 
     # FULL DASHBOARD 
@@ -160,15 +194,14 @@ def update_premium_levels() -> None:
     print(f"LIVE LOSS: ₹{live_loss:.2f} (Positive=Loss, Negative=Profit)")
     print("40% Distance:", forty_percent)
 
-    
-    if hedge_needed:
-        print("HEDGE NEEDED: Nearest 5rs CALL+PUT BUY!")
-    if add_new_option:
-        print("ADD NEW: Same strike options!")
-    if exit_strategy:
-        print("STRATEGY EXIT: ₹1500 loss reached!")
-    else:
-        print("STRATEGY ACTIVE")
+    for msg, cond in [
+    ("HEDGE NEEDED: Nearest 5rs CALL+PUT BUY!", hedge_needed),
+    ("ADD NEW: Same strike options!", add_new_option),
+    ("STRATEGY EXIT: ₹1500 loss reached!", exit_strategy),
+    ("STRATEGY ACTIVE", not exit_strategy),
+    ]:
+        if cond:
+            print(msg)
     print("="*70)
 
 
