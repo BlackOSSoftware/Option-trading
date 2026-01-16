@@ -1,24 +1,28 @@
 import json
 import requests
 import pyotp
-from datetime import datetime,timezone
+import os
+import sys
+from datetime import datetime, timezone
 
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))  
+STORAGE_DIR = os.path.join(BASE_DIR, "storage")
 
 # Load user config from user.json
 def load_user_config() -> dict:
-    with open("storage/user.json", "r") as file:
+    with open(os.path.join(STORAGE_DIR, "user.json"), "r") as file:
         return json.load(file)
 
 
-# Save JWT token inside user.json (update same file)
+# Save JWT token inside user.json 
 def update_user_with_token(jwt_token: str) -> None:
-    with open("storage/user.json", "r") as file:
+    with open(os.path.join(STORAGE_DIR, "user.json"), "r") as file:
         data = json.load(file)
 
     data["jwtToken"] = jwt_token
     data["token_created_at"] = datetime.now(timezone.utc).isoformat()
 
-    with open("storage/user.json", "w") as file:
+    with open(os.path.join(STORAGE_DIR, "user.json"), "w") as file:
         json.dump(data, file, indent=4)
 
 
