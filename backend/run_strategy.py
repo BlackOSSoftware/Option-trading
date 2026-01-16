@@ -21,8 +21,8 @@ import os
 from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SERVICES_DIR = os.path.join(BASE_DIR, "services")
 
-# ---- Helper to run scripts safely ----
 def run_step(step_name: str, script_path: str):
     print(f"\n🚀 [{step_name}] Starting...")
     try:
@@ -50,26 +50,25 @@ def main():
 
     # 1️⃣ Auth & session validation
     run_step(
-        "AUTHENTICATION",
-        "services/auth.py"
+        "AUTHENTICATION", os.path.join(SERVICES_DIR, "auth.py")
     )
 
-    # 2️⃣ Compute VWAP (context / regime)
+    # 2️⃣ Compute VWAP 
     run_step(
         "VWAP COMPUTATION",
-        "services/compute_vwap.py"
+         os.path.join(SERVICES_DIR, "compute_vwap.py")
     )
 
     # 3️⃣ Delta-based option selection
     run_step(
         "DELTA OPTION SELECTION",
-        "services/option_greek1.py"
+        os.path.join(SERVICES_DIR, "option_greek1.py")
     )
 
-    # 4️⃣ Trade execution (paper / live)
+    # 4️⃣ Trade execution
     run_step(
         "TRADE EXECUTION",
-        "services/trade.py"
+        os.path.join(SERVICES_DIR, "trade.py")
     )
 
     print("==========================================")
