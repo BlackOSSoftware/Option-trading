@@ -37,10 +37,9 @@ RETRIES = 2
 BACKOFF_FACTOR = 1.0  # seconds
 
 # ---- Paths ----
-def project_root() -> str:
-    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))  
+STORAGE_DIR = os.path.join(BASE_DIR, "storage")        
 
-STORAGE_DIR = os.path.join(project_root(), "storage")
 TRADE_JSON_PATH = os.path.join(STORAGE_DIR, "trade.json")
 USER_JSON_PATH = os.path.join(STORAGE_DIR, "user.json")
 OPTION_JSON_PATH = os.path.join(STORAGE_DIR, "option.json")
@@ -407,8 +406,6 @@ def process_instrument(side_obj: dict, user_json: Optional[dict]) -> Dict[str, A
             opt_type=opt_type
         )
 
-
-
     # 2) Try local candles first, then API
     now = datetime.now()
     # today market hours
@@ -464,8 +461,8 @@ def main():
         return
 
     user_json = load_json(USER_JSON_PATH) or {}
+    
     # Attempt token discovery uses files and API as needed
-
     final = trade.setdefault("finalPair", {})
     call_obj = final.setdefault("call", {})
     put_obj = final.setdefault("put", {})
